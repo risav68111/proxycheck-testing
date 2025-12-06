@@ -1,0 +1,40 @@
+# === Secrets & credentials (NEVER commit) ===
+.env
+*.env
+
+# === IDE / Eclipse ===
+.classpath
+.project
+.settings/
+*.tmproj
+*.esproj
+
+# === Maven Wrapper generated files ===
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+.mvn/jvm.config
+.mvn/maven.config
+mvnw
+mvnw.cmd
+
+# === Maven build output ===
+target/
+dependency-reduced-pom.xml
+pom.xml.versionsBackup
+
+# === ChromeDriver binary ===
+chromedriver
+chromedriver.exe
+
+# === Proxy extension (you rebuild it anytime) ===
+proxy-extension.zip
+proxy-extension/
+
+# === OS / editor garbage ===
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# === Logs ===
+*.log
