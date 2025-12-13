@@ -34,7 +34,7 @@ public class Pw {
             Page page = browser.newPage();
             page.navigate("https://www.showmyip.com");
 
-            List<Locator> rows = page.locator("table.iptab tr")).all();
+            List<Locator> rows = page.locator("table.iptab tbody tr").all();
             rows.forEach(r -> System.out.println("row: " + r.textContent()));
 
             // System.out.println("IP: " + page.locator("table.iptab tr:nth-child(2)
