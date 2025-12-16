@@ -31,24 +31,73 @@
   <dependencies>
 
     <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
-    <dependency>
-      <groupId>org.seleniumhq.selenium</groupId>
-      <artifactId>selenium-java</artifactId>
-      <version>4.38.0</version>
-    </dependency>
+    <!-- <dependency> -->
+    <!--   <groupId>org.seleniumhq.selenium</groupId> -->
+    <!--   <artifactId>selenium-java</artifactId> -->
+    <!--   <version>4.38.0</version> -->
+    <!-- </dependency> -->
 
     <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-chrome-driver -->
-    <dependency>
-      <groupId>org.seleniumhq.selenium</groupId>
-      <artifactId>selenium-chrome-driver</artifactId>
-      <version>4.38.0</version>
-    </dependency>
+    <!-- <dependency> -->
+    <!--   <groupId>org.seleniumhq.selenium</groupId> -->
+    <!--   <artifactId>selenium-chrome-driver</artifactId> -->
+    <!--   <version>4.38.0</version> -->
+    <!-- </dependency> -->
+
+    		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.30</version>
+			<!-- <scope>runtime</scope> -->
+			<!-- <exclusions> -->
+			<!-- 	<exclusion> -->
+			<!-- 		<groupId>org.slf4j</groupId> -->
+			<!-- 		<artifactId>slf4j-simple</artifactId> -->
+			<!-- 	</exclusion> -->
+			<!-- </exclusions> -->
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20230618</version>
+		</dependency>
 
     <dependency>
       <groupId>com.microsoft.playwright</groupId>
       <artifactId>playwright</artifactId>
       <version>1.48.0</version>
     </dependency>
+
+    <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>4.5.14</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi</artifactId>
+        <version>5.2.5</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi-ooxml</artifactId>
+        <version>5.2.5</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.7.3</version>
+    </dependency>
+
+
 
       <!-- https://mvnrepository.com/artifact/io.github.cdimascio/dotenv-java -->
     <dependency>
