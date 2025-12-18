@@ -29,7 +29,10 @@ import org.slf4j.LoggerFactory;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.TimeoutError;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.SelectOption;
+import com.microsoft.playwright.options.WaitForSelectorState;
 
 public class DistrictECourtRunnable implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(DistrictECourtRunnable.class);
@@ -117,15 +120,16 @@ public class DistrictECourtRunnable implements Runnable {
 
         workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("sheet0");
-        ProxyVar p = null;
+        // ProxyVar p = null;
+        ProxyVar p = new ProxyVar();
         Browser browser = null;
-        try  {
-        p = ProxyChecker.getNextEligibleProxy();
-        browser = HelperClass.launchChromiumBrowser(p);
-        // Browser browser ; 
+        try {
+            // p = ProxyChecker.getNextEligibleProxy();
+            browser = HelperClass.launchChromiumBrowser(p);
+            // Browser browser ;
             try {
-            
-            // browser = HelperClass.launchChromiumBrowser(p);
+
+                // browser = HelperClass.launchChromiumBrowser(p);
                 String[] headings = new String[] { "Sr No.", "Case Type/Case Number/Case Year",
                         "Petitioner Name versus Respondent Name", "Case Type", "Registration Number", "CNR Number",
                         "Filing Date", "Registration Date", "Next Hearing Date", "Date of Disposal",
@@ -142,132 +146,159 @@ public class DistrictECourtRunnable implements Runnable {
 
                 Page page = browser.newPage();
                 page.navigate(
-                        "https://services.ecourts.gov.in/ecourtindia_v6/?p=home&app_token=34377bb73c3a60ac4a139c92149c2a9abcf55b142bd38392aeba5167dbbc62aa");
-                Locator leftPaneMenuCSBtn = page.locator("//a[@id='leftPaneMenuCS']");
+                        "https://services.ecourts.gov.in/ecourtindia_v6");
+
+                page.waitForLoadState(LoadState.LOAD);
+                page.reload();
+
+                // Open left pane
+                Locator leftPaneMenuCSBtn = page.locator("#leftPaneMenuCS");
+                leftPaneMenuCSBtn.waitFor(new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE));
                 leftPaneMenuCSBtn.click();
-                // log.info("leftPaneMenuCSBtn: {}", leftPaneMenuCSBtn.getText());
-                Thread.sleep(2000);
-                Locator btnClose = page.locator("(//button[@class=\"btn-close\"])[1]");
+                log.info("leftPaneMenuCSBtn: {}");
+
+                // Wait for close button
+                Locator btnClose = page.locator("button.btn-close").first();
+                btnClose.waitFor(new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE));
                 log.info("btnClose: {}", btnClose.textContent());
                 btnClose.click();
-                // ((JavascriptExecutor) driver).executeScript("arguments[0].click();",
-                // btnClose);
-                page.selectOption("//*[@id=\"sess_state_code\"]", new SelectOption().setLabel(state));
-                // stateDropdown.getOptions().forEach(es -> log.info(es.getText()));
-                // stateDropdown.selectByVisibleText(state);
-                Thread.sleep(2000);
-                log.info("selecting district ");
-                // Select districtDropdown = new Select(wait
-                page.selectOption("//*[@id=\"sess_dist_code\"]", new SelectOption().setLabel(district));
-                // districtDropdown.selectByVisibleText(district);
+                log.info("btnClose");
 
-                log.info("selected district ");
-                Thread.sleep(2000);
-                log.info("court complex selection");
-                // Select courtComplexCode = new Select(wait.until(
-                page.selectOption("#court_complex_code", new SelectOption().setLabel(courtComplex));
-                // courtComplexCode.selectByVisibleText(courtComplex);
+                // State dropdown
+                Locator stateDropdown = page.locator("#sess_state_code");
+                stateDropdown.waitFor(new Locator.WaitForOptions()
+                        .setState(WaitForSelectorState.VISIBLE));
+                stateDropdown.selectOption(new SelectOption().setLabel(state));
+                log.info("stateDropdown");
 
-                log.info("court complex selection after...");
-                Thread.sleep(2000);
+                // District dropdown — wait until populated
+                Locator districtDropdown = page.locator("#sess_dist_code");
+                page.waitForFunction(
+                        "el => el && el.options.length > 1",
+                        districtDropdown.elementHandle());
+                districtDropdown.selectOption(new SelectOption().setLabel(district));
+                log.info("districtDropdown");
+
+                // Court complex dropdown — enabled + populated
+                Locator courtComplexDropdown = page.locator("#court_complex_code");
+                log.info("courtComplexDropdown");
+                page.waitForFunction(
+                        "el => el && !el.disabled && el.options.length > 1",
+                        courtComplexDropdown.elementHandle());
+                courtComplexDropdown.selectOption(new SelectOption().setLabel(courtComplex));
+
+                // Optional establishment code
                 if (estCode != null) {
                     Locator estCodes = page.locator("div#est_codes select");
+                    log.info("estCodes");
+                    page.waitForFunction(
+                            "el => el && el.options.length > 1",
+                            estCodes.elementHandle());
                     estCodes.selectOption(new SelectOption().setLabel(estCode));
-                    // estCodes.selectByVisibleText(estCode);
-                    Thread.sleep(2000);
                 }
 
                 int retries = 0;
                 while (retries++ < 6) {
                     try {
-                        log.info("inserting name");
-                        Locator petresNameInput = page.locator("//input[@id='petres_name']");
+                        log.info("Attempt {}", retries);
+
+                        Locator petresNameInput = page.locator("#petres_name");
+                        petresNameInput.waitFor();
                         petresNameInput.fill(targetName);
-                        // petresNameInput.clear();
-                        Thread.sleep(1000);
-                        // petresNameInput.sendKeys(targetName);
-                        Thread.sleep(1000);
 
-                        Locator rgyearPInput = page.locator("//input[@name='rgyearP']");
+                        Locator rgyearPInput = page.locator("input[name='rgyearP']");
+                        rgyearPInput.waitFor();
                         rgyearPInput.fill(year);
-                        // rgyearPInput.clear();
-                        // Thread.sleep(1000);
-                        // log.info("selecting year");
-                        // rgyearPInput.sendKeys(String.valueOf(year));
-                        Thread.sleep(1000);
 
-                        log.info("selection status both");
-                        page.locator("(//input[@value = 'Both'])[1]").click();
-                        // ((JavascriptExecutor) driver).executeScript("arguments[0].click();",
-                        // statusInput);
-                        Thread.sleep(3000);
+                        page.locator("input[value='Both']").first().click();
 
-                        log.info("captcha output");
-                        Locator captchaImage = page.locator("//img[@id=\"captcha_image\"]");
-                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH_mm_ss");
-                        log.info("dtf: {}", dtf);
-                        LocalDateTime now = LocalDateTime.now();
-                        log.info("now: {}", now);
+                        Locator captchaImage = page.locator("#captcha_image");
+                        captchaImage.waitFor();
+
+                        String captchaFileName = String.format(
+                                "%s/captcha/captcha_%s_%s.png",
+                                path, year, LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH_mm_ss")));
 
                         HelperClass.createDirectory(path + "/captcha");
-                        String captchaFileName = path + "/captcha/captcha_" + year + "_" + dtf.format(now) + ".png";
-                        log.info("captchaFileName: {}", captchaFileName);
-                        captchaImage.screenshot(new Locator.ScreenshotOptions().setPath(Paths.get(captchaFileName)));
-                        // captchaImage.getScreenshotAs(OutputType.FILE)
-                        // .renameTo(new File(captchaFileName));
-                        String captchaText = TesseractUtil.toString(captchaFileName); // (new Scanner(System.in)).nextLine(); // AntiCaptcha.CreateTask(captchaFileName);
+                        captchaImage.screenshot(
+                                new Locator.ScreenshotOptions()
+                                        .setPath(Paths.get(captchaFileName)));
+
+                        String captchaText = TesseractUtil.toString(captchaFileName);
+                        // System.out.print("INPT::");
+                        // captchaText = (new Scanner(System.in)).nextLine();
                         log.info("captchaText: {}", captchaText);
 
-                        Locator varcode = page.locator("xpath=//input[@name=\"fcaptcha_code\"]");
-                        varcode.fill(captchaText);
-                        // varcode.clear();
-                        // Thread.sleep(2000);
-                        // varcode.sendKeys(captchaText);
+                        Locator captchaInput = page.locator("input[name='fcaptcha_code']");
+                        captchaInput.fill(captchaText);
 
-                        page.locator("xpath=//*[@id='frmsearch_name']/div[3]/div[2]/button").click();
-                        log.info("clicked go btn");
-                        // HelperClass.deleteDirectory(path + "/" + "captcha");
+                        page.locator("#frmsearch_name button").click();
+                        log.info("Submitted form");
+
+                        // Locator resultTable = page.locator("table#dispTable");
+                        // log.info("resultTable: {}", resultTable.textContent());
+                        // Locator noDataMsg = page.locator("#nodata");
+                        // log.info("noDataMsg: {}", noDataMsg.textContent());
+                        // Locator errorMsg = page.locator(".loader-txt div");
+                        // log.info("errorMsg: {}", errorMsg.textContent());
+                        try {
+                            page.waitForSelector(
+                                    "table#dispTable, #nodata, .loader-txt div",
+                                    new Page.WaitForSelectorOptions().setTimeout(5000));
+                        } catch (TimeoutError e) {
+                            throw new RuntimeException("No response from server");
+                        }
+                        page.waitForFunction("""
+                                    () => {
+                                        if (document.querySelector("table#dispTable")) return "TABLE";
+                                        if (document.querySelector("#nodata")) return "NO_DATA";
+                                        if (document.querySelector(".loader-txt div")) return "LOADER";
+                                        return null;
+                                    }
+                                """);
+
+                        String result = (String) page.evaluate("""
+                                    () => {
+                                        if (document.querySelector("table#dispTable")) return "TABLE";
+                                        if (document.querySelector("#nodata")) return "NO_DATA";
+                                        if (document.querySelector(".loader-txt div")) return "LOADER";
+                                        return null;
+                                    }
+                                """);
+
+                        if(!result.equals("LOADER")) {
+                            break;
+                        }
+                        // errorMsg.waitFor(new Locator.WaitForOptions().setTimeout(3000));
+                        // log.info("new");
+
+                        // Locator data = resultTable.or(noDataMsg);
+                        // data.waitFor(new Locator.WaitForOptions().setTimeout(3000));
+                        // log.info("waitFor");
+
+                        Locator loaderText = page.locator(".loader-txt div").first();
+                        log.info("loaderText");
+                        // loaderText.waitFor(new Locator.WaitForOptions()
+                        // .setTimeout(2000));
+                        //
+                        String message = loaderText.textContent();
+                        log.info("Server response: {}", message);
+
+                        boolean retry = "Invalid Captcha...".equalsIgnoreCase(message) ||
+                                "Oops! Session timeout..!!!".equalsIgnoreCase(message) ||
+                                "Server is under maintenance...".equalsIgnoreCase(message);
+
+                        if (!retry) {
+                            break; // SUCCESS
+                        }
+
+                        handleRetry(page);
 
                     } catch (Exception e) {
-                        // e.printStackTrace();
-                        // retries++;
-                        anyPopUpOccured(page);
-                        Thread.sleep(2000);
-                        page.locator("xpath=//*[@id=\"div_captcha_party\"]/div/div/a").click();
-                        // ((JavascriptExecutor) driver).executeScript("arguments[0].click();",
-                        // restCaptcha);
-                        continue;
-                    }
-
-                    Thread.sleep(2000);
-                    String check = "";
-                    try {
-                        Locator checkElement = page.locator("xpath=(//div[@class='loader-txt'])//div[1]");
-                        check = checkElement.textContent();
-                        log.info("check: {}", check);
-                    } catch (Exception e) {
-                        // e.printStackTrace();
-                        check = "";
-                        break;
-                    }
-                    boolean anyError = (("Invalid Captcha...".equalsIgnoreCase(check))
-                            || ("Oops! Session timeout..!!!".equalsIgnoreCase(check))
-                            || ("Server is under maintenance...".equalsIgnoreCase(check)));
-                    log.info("anyError: {}", anyError);
-
-                    if (anyError) {
-                        Locator closeBtn = page.locator("xpath=(//button[@class='btn-close'])[1]");
-                        closeBtn.click();
-                        // ((JavascriptExecutor) driver).executeScript("arguments[0].click();",
-                        // closeBtn);
-                        Thread.sleep(2000);
-                        Locator restCaptcha = page.locator("xpath=//*[@id=\"div_captcha_party\"]/div/div/a");
-                        restCaptcha.click();
-                        // ((JavascriptExecutor) driver).executeScript("arguments[0].click();",
-                        // restCaptcha);
-                        Thread.sleep(1000);
-                    } else {
-                        break;
+                        log.warn("Retry due to exception: {}", e.getMessage());
+                        handleRetry(page);
                     }
                 }
 
@@ -291,14 +322,15 @@ public class DistrictECourtRunnable implements Runnable {
 
                 for (int k = 1; k < No_of_records; k++) {
                     // try {
-                    //     Locator scroll_link = page.locator("table#dispTable tr").nth(k-1).locator("td:nth-child(4) a");
-                    //     Thread.sleep(1000);
+                    // Locator scroll_link = page.locator("table#dispTable
+                    // tr").nth(k-1).locator("td:nth-child(4) a");
+                    // Thread.sleep(1000);
                     // } catch (Exception e) {
-                    //     log.info("no view button found....??");
-                    //     continue;
-                    //     // e.printStackTrace();
+                    // log.info("no view button found....??");
+                    // continue;
+                    // // e.printStackTrace();
                     // }
-                    
+
                     rows = page.locator("table#dispTable tbody tr").all();
                     Locator row = rows.get(k);
 
@@ -473,7 +505,7 @@ public class DistrictECourtRunnable implements Runnable {
                     ex.printStackTrace();
                 }
             }
-        } catch(Exception exp) {
+        } catch (Exception exp) {
             log.info("UnExpected ERROR: ");
             exp.printStackTrace();
             throw new RuntimeException(exp);
@@ -576,19 +608,23 @@ public class DistrictECourtRunnable implements Runnable {
     }
 
     public void anyPopUpOccured(Page page) {
-        // WebDriverWait wait3Sec = new WebDriverWait(driver, Duration.ofSeconds(3));
-        String[] blockerss = { "#caseBusinessDiv_back", "#caseBusinessDiv_back", "button.btn-close",
-                "#main_back_party" };
-        for (String cssSelector : blockerss) {
+        String[] selectors = {
+                "#caseBusinessDiv_back",
+                "button.btn-close",
+                "#main_back_party"
+        };
+
+        for (String selector : selectors) {
             try {
-                Locator closeBtn = page.locator(cssSelector);
-                closeBtn.click();
-                // ((JavascriptExecutor) driver).executeScript("arguments[0].click();",
-                // closeBtn);
-                Thread.sleep(3000);
-            } catch (Exception e) {
-                log.info("no close button with: {}", cssSelector);
-                // e.printStackTrace();
+                Locator blocker = page.locator(selector).first();
+
+                if (blocker.isVisible()) {
+                    blocker.click();
+                    page.waitForTimeout(2000); // short UI settle, not sleep
+                    log.info("Closed popup using selector: {}", selector);
+                }
+            } catch (Exception ignored) {
+                // intentionally ignored
             }
         }
     }
@@ -611,7 +647,8 @@ public class DistrictECourtRunnable implements Runnable {
     }
 
     public void saveWorkBook() {
-        if(!isWorkbookSave) return;
+        if (!isWorkbookSave)
+            return;
         try {
             String path = currentDir + "/" + folderName;
             String filePath = path + "/" + workbookName;
@@ -627,4 +664,28 @@ public class DistrictECourtRunnable implements Runnable {
             e.printStackTrace();
         }
     }
+
+    private void handleRetry(Page page) {
+
+        String[] selectors = {
+                "#caseBusinessDiv_back",
+                "button.btn-close",
+                "#main_back_party"
+        };
+
+        for (String selector : selectors) {
+            try {
+                Locator blocker = page.locator(selector).first();
+
+                if (blocker.isVisible()) {
+                    blocker.click();
+                    page.waitForTimeout(2000); // short UI settle, not sleep
+                    log.info("Closed popup using selector: {}", selector);
+                }
+            } catch (Exception ignored) {
+                // intentionally ignored
+            }
+        }
+    }
+
 }

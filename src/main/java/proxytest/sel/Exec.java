@@ -25,19 +25,23 @@ public class Exec {
             // courtComplex = "Rouse Avenue Court Complex";
             String requestId = "requestId";
             String serviceId = "serviceId";
-            String[] targetNames = new String[] {"jatin", "sushant", "rishav" };
-            int i=0;
+            String[] targetNames = new String[] { "jatin", "sushant", "rishav" };
+            int i = 0;
             // for (; i<4; ) {
-                // targetName = tName;
-                // futures.add(executorService.submit(new Pw(i++)));
-                // }
+            // targetName = tName;
+            // futures.add(executorService.submit(new Pw(i++)));
+            // }
             // }
             // futures.add(executorService.submit(new DistrictECourt(caseId, service,
-            //     targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear, state, district, courtComplex)));
+            // targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear,
+            // state, district, courtComplex)));
             // futures.add(executorService.submit(new DistrictECourt(caseId, service,
-            //     targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear, state, "Maharashtra Industrial and Lab", courtComplex)));
+            // targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear,
+            // state, "Maharashtra Industrial and Lab", courtComplex)));
             ArrayList<Integer> numList = new ArrayList<>();
-            futures.add(executorService.submit(new DistrictECourtRunnable(caseId, service, targetName, search_date, searchedBy, requestId, serviceId,  "2025", "Delhi", "Central", "Rouse Avenue Court Complex",null, numList, "wb.xlsx" )));
+            futures.add(executorService.submit(new DistrictECourtRunnable(caseId, service, targetName, search_date,
+                    searchedBy, requestId, serviceId, "2025", "Delhi", "Central", "Rouse Avenue Court Complex", null,
+                    numList, "wb.xlsx")));
 
             for (Future f : futures) {
                 f.get(24, TimeUnit.HOURS);
