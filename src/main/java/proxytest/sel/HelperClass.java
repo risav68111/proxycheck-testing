@@ -23,12 +23,19 @@ public class HelperClass {
     private static final String user = dotenv.get("WEBSHARE_USER");
     private static final String pass = dotenv.get("WEBSHARE_PASS");
 
-    public static Browser launchChromiumBrowser() {
-        String userDataDir = "/tmp/playwright-chrome-user-data-" + UUID.randomUUID();
+    public static Browser launchChromiumBrowser(ProxyVar p) {
+        // String userDataDir = "/tmp/playwright-chrome-user-data-" + UUID.randomUUID();
+        // ProxyVar p =null;
+        // try {
+        //    p  = ProxyChecker.getNextEligibleProxy();
+        // } catch (Exception e) {
+        //     throw new RuntimeException(e);
+        // }
+        String proxy = p.getProxy();
 
         BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
                 .setHeadless(false);
-                // .setProxy(new Proxy(proxySender(1))
+                // .setProxy(new Proxy(proxy)
                 //         .setUsername(user)
                 //         .setPassword(pass));
 
@@ -41,7 +48,7 @@ public class HelperClass {
 
     public static String proxySender(int i) {
 
-        String[] proxyList = new String[] { 
+        String[] proxyList = new String[] {
                 "142.111.48.253:7030",
                 "31.59.20.176:6754",
                 "23.95.150.145:6114",

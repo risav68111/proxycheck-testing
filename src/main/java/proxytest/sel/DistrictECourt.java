@@ -97,7 +97,7 @@ public class DistrictECourt implements Runnable {
         log.info("caseId: {}", caseId);
 
         // createMap(Integer.parseInt(year));
-        ExecutorService executorService = Executors.newFixedThreadPool(1); // ERROR change threadpool to 3
+        ExecutorService executorService = Executors.newFixedThreadPool(5); // ERROR change threadpool to 3
         ArrayList<Integer> check = new ArrayList<Integer>();
         List<Future<?>> futures = new ArrayList<>(); // Use a wildcard with an upper bound
         String startTime = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
@@ -114,15 +114,20 @@ public class DistrictECourt implements Runnable {
         // WebDriver driver = HelperClass.createWebDriver(path1);
         // WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         // driver.manage().window().maximize();
+        ProxyVar p = null;
+        Browser browser = null;
+
         try {
-            Browser browser = HelperClass.launchChromiumBrowser();
+            p = ProxyChecker.getNextEligibleProxy();
+            browser = HelperClass.launchChromiumBrowser(p);
+
             Page page = browser.newPage();
             page.navigate(
                     "https://services.ecourts.gov.in/ecourtindia_v6/?p=home&app_token=34377bb73c3a60ac4a139c92149c2a9abcf55b142bd38392aeba5167dbbc62aa");
             // log.info(
             // "printing body: ------------------------------------------------\n{}\n
             // __________________________________________________________________",
-            // wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("body"))).getText());
+            // page.locator("body").textContent());
 
             page.locator("//a[@id='leftPaneMenuCS']").click();
             log.info("leftPaneMenuCS ");
@@ -183,14 +188,13 @@ public class DistrictECourt implements Runnable {
                         log.info("workbookName: {}", workbookName);
 
                         Future<?> future = executorService
-                                .submit(new DistrictECourtRunnable(caseId, service, targetName, search_date, searchedBy,
-                                        requestId, serviceId, String.valueOf(checkYear), state, district,
+                                .submit(new DistrictECourtRunnable(caseId, service, targetName, search_date,
+                                        searchedBy, requestId, serviceId, String.valueOf(checkYear), state, district,
                                         courtComp, estCode, check, workbookName));
                         futures.add(future);
                     }
                 }
             }
-            browser.close();
 
             for (Future<?> future : futures) {
                 future.get(maxExecutionTime, timeUnit);
@@ -208,10 +212,25 @@ public class DistrictECourt implements Runnable {
             for (Future<?> future : futures) {
                 future.cancel(true);
             }
-            // RequestLogic.UpdateDatabaseStatus("ERROR", "District E Court", "District E
-            // Court", requestId, null, serviceId, startTime);
+
+            // RequestLogic.UpdateDatabaseStatus("ERROR", "District E Court", "District E Court", requestId, null, serviceId, startTime);
             // RequestLogic.portalStatus("District E Court", requestId, serviceId, "ERROR");
         } finally {
+            try {
+                if (p != null) {
+                    ProxyChecker.decreaseProxyCount(p.getId());
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            try {
+                if (browser != null) {
+                    browser.close();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
             executorService.shutdown();
         }
     }

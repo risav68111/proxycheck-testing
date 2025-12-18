@@ -116,9 +116,16 @@ public class DistrictECourtRunnable implements Runnable {
         log.info("caseId: {}", caseId);
 
         workbook = new XSSFWorkbook();
-        try (Browser browser = HelperClass.launchChromiumBrowser()) {
+        XSSFSheet sheet = workbook.createSheet("sheet0");
+        ProxyVar p = null;
+        Browser browser = null;
+        try  {
+        p = ProxyChecker.getNextEligibleProxy();
+        browser = HelperClass.launchChromiumBrowser(p);
+        // Browser browser ; 
             try {
-                XSSFSheet sheet = workbook.createSheet("sheet0");
+            
+            // browser = HelperClass.launchChromiumBrowser(p);
                 String[] headings = new String[] { "Sr No.", "Case Type/Case Number/Case Year",
                         "Petitioner Name versus Respondent Name", "Case Type", "Registration Number", "CNR Number",
                         "Filing Date", "Registration Date", "Next Hearing Date", "Date of Disposal",
@@ -208,7 +215,7 @@ public class DistrictECourtRunnable implements Runnable {
                         captchaImage.screenshot(new Locator.ScreenshotOptions().setPath(Paths.get(captchaFileName)));
                         // captchaImage.getScreenshotAs(OutputType.FILE)
                         // .renameTo(new File(captchaFileName));
-                        String captchaText = (new Scanner(System.in)).nextLine(); // AntiCaptcha.CreateTask(captchaFileName);
+                        String captchaText = TesseractUtil.toString(captchaFileName); // (new Scanner(System.in)).nextLine(); // AntiCaptcha.CreateTask(captchaFileName);
                         log.info("captchaText: {}", captchaText);
 
                         Locator varcode = page.locator("xpath=//input[@name=\"fcaptcha_code\"]");
@@ -450,7 +457,21 @@ public class DistrictECourtRunnable implements Runnable {
                 log.info("_________________");
                 e1.printStackTrace();
             } finally {
-                browser.close();
+                try {
+                    if (p != null) {
+                        ProxyChecker.decreaseProxyCount(p.getId());
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+                try {
+                    if (browser != null) {
+                        browser.close();
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         } catch(Exception exp) {
             log.info("UnExpected ERROR: ");
