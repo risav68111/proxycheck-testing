@@ -20,56 +20,31 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class HelperClass {
     private static final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
-    private static final String user = dotenv.get("WEBSHARE_USER");
-    private static final String pass = dotenv.get("WEBSHARE_PASS");
+    private static final String user = dotenv.get("W_USER");
+    private static final String pass = dotenv.get("W_PASS");
+    private static final String proxy = dotenv.get("PROXY");
 
     public static Browser launchChromiumBrowser(ProxyVar p) {
         // String userDataDir = "/tmp/playwright-chrome-user-data-" + UUID.randomUUID();
         // ProxyVar p =null;
         // try {
-        //    p  = ProxyChecker.getNextEligibleProxy();
+        // p = ProxyChecker.getNextEligibleProxy();
         // } catch (Exception e) {
-        //     throw new RuntimeException(e);
+        // throw new RuntimeException(e);
         // }
-        String proxy = p.getProxy();
+        System.out.println("PROXY: "+ proxy);
 
         BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
-                .setHeadless(false);
-                // .setProxy(new Proxy(proxy)
-                //         .setUsername(user)
-                //         .setPassword(pass));
+                .setHeadless(false)
+                .setProxy(new Proxy(proxy)
+                        .setUsername(user)
+                        .setPassword(pass));
 
         Playwright playwright = Playwright.create();
         Browser browser = playwright.chromium().launch(options);
 
         // Browser browser = playwright.webkit().launch();
         return browser;
-    }
-
-    public static String proxySender(int i) {
-
-        String[] proxyList = new String[] {
-                "142.111.48.253:7030",
-                "31.59.20.176:6754",
-                "23.95.150.145:6114",
-                "198.23.239.134:6540",
-                "107.172.163.27:6543",
-                "198.105.121.200:6462",
-                "64.137.96.74:6641",
-                "84.247.60.125:6095",
-                "216.10.27.159:6837",
-                "142.111.67.146:5611"
-        };
-
-        if (i >= proxyList.length)
-            i %= proxyList.length;
-
-        return proxyList[i];
-        // BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
-        // .setHeadless(false)
-        // .setProxy(new Proxy(host + ":" + port)
-        // .setUsername(user)
-        // .setPassword(pass));
     }
 
     public static void createDirectory(String path) {

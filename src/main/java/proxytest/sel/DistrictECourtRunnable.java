@@ -60,7 +60,7 @@ public class DistrictECourtRunnable implements Runnable {
 
     public DistrictECourtRunnable(String caseId, String service, String targetName, String search_date,
             String searchedBy, String requestId, String serviceId, String year, String state, String district,
-            String courtComplex, String estCode, ArrayList<Integer> checks, String workbookName) {
+            String courtComplex, String estCode, ArrayList<Integer> checks, String workbookName, String folderName) {
         this.targetName = targetName;
         this.searchedBy = searchedBy;
         this.caseId = caseId;
@@ -68,8 +68,7 @@ public class DistrictECourtRunnable implements Runnable {
         this.search_date = search_date;
         this.requestId = requestId;
         this.serviceId = serviceId;
-        this.folderName = caseId + "_" + service + "_" + "DistrictECourt" + "_" + "DistrictECourt" + "_" + targetName
-                + "_" + search_date;
+        this.folderName = folderName;
         this.BASE_DIRECTORY = currentDir + File.separator + this.folderName;
         this.year = year;
         this.state = state;
@@ -120,12 +119,10 @@ public class DistrictECourtRunnable implements Runnable {
 
         workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("sheet0");
-        // ProxyVar p = null;
-        ProxyVar p = new ProxyVar();
+        ProxyVar p = null;
+        // ProxyVar p = new ProxyVar();
         Browser browser = null;
         try {
-            // p = ProxyChecker.getNextEligibleProxy();
-            browser = HelperClass.launchChromiumBrowser(p);
             // Browser browser ;
 
             // browser = HelperClass.launchChromiumBrowser(p);
@@ -144,19 +141,22 @@ public class DistrictECourtRunnable implements Runnable {
                 hCell.setCellValue(sheetDetails[j]);
             }
 
+            p = ProxyChecker.getNextEligibleProxy();
+            browser = HelperClass.launchChromiumBrowser(p);
+
             String[] headings = new String[] { "Sr No.", "Case Type/Case Number/Case Year",
                     "Petitioner Name versus Respondent Name", "Case Type", "Registration Number", "CNR Number",
                     "Filing Date", "Registration Date", "Next Hearing Date", "Date of Disposal",
                     "Nature of Disposal", "Petitioner", "Respondent", "Act and Section",
                     "Orders/Judgements S No.", "Orders/Judgements Date", "Orders/Judgements Details" };
-            Row headerRow = sheet.createRow(0);
+            Row headerRow = sheet.createRow(3);
             for (int j = 0; j < headings.length; j++) {
                 Cell hCell = headerRow.createCell(j);
                 hCell.setCellValue(headings[j]);
                 // hCell.setCellStyle(HelperClass.addHeaderStyle(workbook));
             }
 
-            int rowNum = 1, foundCount = 0;
+            int rowNum = 4, foundCount = 0;
 
             Page page = browser.newPage();
             page.navigate("https://services.ecourts.gov.in");
@@ -246,6 +246,8 @@ public class DistrictECourtRunnable implements Runnable {
                     // System.out.print("INPT::");
                     // captchaText = (new Scanner(System.in)).nextLine();
                     log.info("captchaText: {}", captchaText);
+
+                    handleRetry(page);
 
                     Locator captchaInput = page.locator("input[name='fcaptcha_code']");
                     captchaInput.fill(captchaText);
@@ -485,6 +487,15 @@ public class DistrictECourtRunnable implements Runnable {
                 checks.add(foundCount);
             }
         } catch (Exception e1) {
+            sheet = workbook.getSheet("sheet0");
+            Cell cell = sheet.createRow(sheet.getLastRowNum() + 2).createCell(0);
+            CellStyle style = workbook.createCellStyle();
+            style.setFillForegroundColor(IndexedColors.RED.getIndex());
+            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            cell.setCellStyle(style);
+            cell.setCellValue("ERROR OCCOURED");
+            isWorkbookSave = true;
+
             // anyPopUpOccured(page);
             // try {
             // Locator bodyContent = page.locator("body");
