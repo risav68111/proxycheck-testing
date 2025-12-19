@@ -10,7 +10,8 @@ public class TesseractUtil {
         System.out.println("Image file path: " + imageFile);
         ITesseract instance = new Tesseract();
         // ITesseract instance = new Tesseract1();
-        instance.setDatapath("/usr/share/tesseract-ocr/5/tessdata"); // path to tessdata directory
+        // instance.setDatapath("/usr/share/tesseract-ocr/5/tessdata"); // path to tessdata directory
+        instance.setDatapath("C:/Program Files/Tesseract-OCR/tessdata"); // path to tessdata directory
 
         // "/usr/share/tesseract-ocr/5/tessdata"
 

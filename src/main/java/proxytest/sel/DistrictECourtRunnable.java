@@ -124,7 +124,7 @@ public class DistrictECourtRunnable implements Runnable {
         ProxyVar p = new ProxyVar();
         Browser browser = null;
         try {
-            // p = ProxyChecker.getNextEligibleProxy();
+            p = ProxyChecker.getNextEligibleProxy();
             browser = HelperClass.launchChromiumBrowser(p);
             // Browser browser ;
 

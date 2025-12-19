@@ -97,7 +97,7 @@ public class DistrictECourt implements Runnable {
         log.info("caseId: {}", caseId);
 
         // createMap(Integer.parseInt(year));
-        ExecutorService executorService = Executors.newFixedThreadPool(5); // ERROR change threadpool to 3
+        ExecutorService executorService = Executors.newFixedThreadPool(6); // ERROR change threadpool to 3
         ArrayList<Integer> check = new ArrayList<Integer>();
         List<Future<?>> futures = new ArrayList<>(); // Use a wildcard with an upper bound
         String startTime = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());

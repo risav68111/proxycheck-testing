@@ -33,11 +33,12 @@ public class HelperClass {
         // }
         String proxy = p.getProxy();
 
+        System.out.println(proxy);
         BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
-                .setHeadless(false);
-                // .setProxy(new Proxy(proxy)
-                //         .setUsername(user)
-                //         .setPassword(pass));
+                .setHeadless(false)
+                .setProxy(new Proxy(proxy)
+                        .setUsername(user)
+                        .setPassword(pass));
 
         Playwright playwright = Playwright.create();
         Browser browser = playwright.chromium().launch(options);

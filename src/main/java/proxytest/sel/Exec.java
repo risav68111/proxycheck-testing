@@ -1,5 +1,6 @@
 package proxytest.sel;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -13,10 +14,11 @@ public class Exec {
             ExecutorService executorService = Executors.newFixedThreadPool(1);
             List<Future<?>> futures = new ArrayList<>();
             String targetName = "Neha Gada";
-            String searchedBy = "searchedBy";
+            String searchedBy = "rishav";
             String caseId = "5404-003-26";
             String service = "service";
-            String search_date = "search_date";
+            String search_date = LocalDate.now().toString();
+            System.out.println(search_date);
             String fromYear = "2016";
             String toYear = "2025";
             String state = "Maharashtra";
