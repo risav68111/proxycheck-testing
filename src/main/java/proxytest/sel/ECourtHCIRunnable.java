@@ -1,6 +1,6 @@
-package com.fios.fiosspringbootapi.service.scripts;
+package proxytest.sel;
 
-import com.fios.fiosspringbootapi.utlis.AntiCaptcha;
+// import com.fios.fiosspringbootapi.utlis.AntiCaptcha;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -62,7 +62,7 @@ public class ECourtHCIRunnable implements Runnable {
         try {
             ecourtHCI();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            // throw new RuntimeException(e);
         }
     }
 
@@ -125,7 +125,7 @@ public class ECourtHCIRunnable implements Runnable {
             for (int i = 0; i < headers.length; i++) {
                 Cell headerCell = headerRow.createCell(i);
                 headerCell.setCellValue(headers[i]);
-                headerCell.setCellStyle(HelperClass.addHeaderStyle(workbook));
+                // headerCell.setCellStyle(HelperClass.addHeaderStyle(workbook));
             }
 
             Thread.sleep(2000);
@@ -206,11 +206,12 @@ public class ECourtHCIRunnable implements Runnable {
                     LocalDateTime now = LocalDateTime.now();
                     HelperClass.createDirectory(path1 + "/captcha");
                     log.info("saving captcha image...");
+                    String captchaName = path1 + "/captcha/captcha" + j + "_" + dtf.format(now) + ".png";
                     captchaImage.getScreenshotAs(OutputType.FILE)
-                            .renameTo(new File(path1 + "/captcha/captcha" + j + "_" + dtf.format(now) + ".png"));
-                    log.info("calling captcha api to get captcha text");
-                    String captchaText = AntiCaptcha
-                            .CreateTask(path1 + "/captcha/captcha" + j + "_" + dtf.format(now) + ".png");
+                            .renameTo(new File(captchaName));
+                    log.info("calling tesseract to get captcha text");
+                    String captchaText = TesseractUtil.toString(captchaName);
+                    // AntiCaptcha.CreateTask(path1 + "/captcha/captcha" + j + "_" + dtf.format(now) + ".png");
 
                     log.info("entering captcha");
                     WebElement varcode = wait
@@ -241,10 +242,11 @@ public class ECourtHCIRunnable implements Runnable {
                     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH_mm_ss");
                     LocalDateTime now = LocalDateTime.now();
                     HelperClass.createDirectory(path1 + "/captcha");
+                    String captchaName = path1 + "/captcha/captcha" + j + "_" + dtf.format(now) + ".png";
                     captchaImage.getScreenshotAs(OutputType.FILE)
-                            .renameTo(new File(path1 + "/captcha/captcha" + j + "_" + dtf.format(now) + ".png"));
-                    String captchaText = AntiCaptcha
-                            .CreateTask(path1 + "/captcha/captcha" + j + "_" + dtf.format(now) + ".png");
+                            .renameTo(new File(captchaName));
+                    log.info("calling tesseract to get captcha text");
+                    String captchaText = TesseractUtil.toString(captchaName);
 
                     WebElement varcode = wait
                             .until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("input#captcha")));
@@ -796,8 +798,8 @@ public class ECourtHCIRunnable implements Runnable {
                                             String docLink = tds.get(r).findElement(By.tagName("a"))
                                                     .getAttribute("href");
                                             Cell linkcell = dataRow.createCell(30);
-                                            linkcell.setCellValue("Link");
-                                            linkcell.setHyperlink(HelperClass.addClickableLink(docLink, workbook));
+                                            linkcell.setCellValue(docLink);
+                                            // linkcell.setHyperlink(HelperClass.addClickableLink(docLink, workbook));
                                         } else {
                                             Cell orderCell = dataRow.createCell((26 + r));
                                             orderCell.setCellValue(tds.get(r).getText());
@@ -817,8 +819,8 @@ public class ECourtHCIRunnable implements Runnable {
                                             String docLink = tds.get(r).findElement(By.tagName("a"))
                                                     .getAttribute("href");
                                             Cell linkcell = newRow.createCell(30);
-                                            linkcell.setCellValue("Link");
-                                            linkcell.setHyperlink(HelperClass.addClickableLink(docLink, workbook));
+                                            linkcell.setCellValue(docLink);
+                                            // linkcell.setHyperlink(HelperClass.addClickableLink(docLink, workbook));
                                         } else {
                                             Cell orderCell = newRow.createCell((26 + r));
                                             orderCell.setCellValue(tds.get(r).getText());

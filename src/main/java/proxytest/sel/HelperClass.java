@@ -1,12 +1,24 @@
 package proxytest.sel;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
@@ -71,7 +83,7 @@ public class HelperClass {
     }
 
     
-    public static WebDriver createWebDriver() {
+    public static WebDriver createWebDriver(String path) {
 
         String os = System.getProperty("os.name").toLowerCase();
         // Get current directory (likely target folder when running JAR)
@@ -96,7 +108,7 @@ public class HelperClass {
 
 
         // Make less detectable
-        options.addArguments("--headless"); // use --headless=new if supported
+        // options.addArguments("--headless"); // use --headless=new if supported
         options.addArguments("--disable-blink-features=AutomationControlled");
         options.setExperimentalOption("excludeSwitches", Arrays.asList("enable-automation"));
         options.setExperimentalOption("useAutomationExtension", false);
@@ -178,5 +190,20 @@ public class HelperClass {
         );
 
         return driver;
+    }
+
+    public static void saveWorkbook(String path, String workbookName, XSSFSheet sheet) {
+        try {
+            String filePath = path + "/" + workbookName;
+
+            XSSFWorkbook workbook = sheet.getWorkbook();
+            FileOutputStream outputStream = new FileOutputStream(filePath);
+            workbook.write(outputStream);
+            outputStream.close();
+
+            System.out.println("Workbook saved successfully to: " + filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

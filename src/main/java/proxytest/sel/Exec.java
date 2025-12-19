@@ -18,8 +18,8 @@ public class Exec {
             String caseId = "5404-003-26";
             String service = "service";
             String search_date = "search_date";
-            String fromYear = "2015";
-            String toYear = "2025";
+            String fromYear = "2018";
+            String toYear = "2020";
             String state = "Delhi";
             String district = "Central";
             String courtComplex = "All";
@@ -27,6 +27,12 @@ public class Exec {
             String requestId = "requestId";
             String serviceId = "serviceId";
             String[] targetNames = new String[] { "jatin", "sushant", "rishav" };
+            // String[] targetNames = new String[] { "jatin", "sushant", "rishav" };
+
+            futures.add(executorService.submit(new ECourtHCI(caseId, service,
+            targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear,
+            "High Court of Delhi", List.of("Principal Bench at Delhi"))));
+
             int i = 0;
             // for (; i<4; ) {
             // targetName = tName;
@@ -48,11 +54,11 @@ public class Exec {
             // futures.add(executorService.submit(new DistrictECourt(caseId, service,
             // targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear,
             // state, "Maharashtra Industrial and Lab", courtComplex)));
-            ArrayList<Integer> numList = new ArrayList<>();
-            String dir = "tmp";
-            futures.add(executorService.submit(new DistrictECourtRunnable(caseId, service, targetName, search_date,
-                    searchedBy, requestId, serviceId, "2025", "Delhi", "Central", "Rouse Avenue Court Complex", null,
-                    numList, "wb.xlsx", dir)));
+            // ArrayList<Integer> numList = new ArrayList<>();
+            // String dir = "tmp";
+            // futures.add(executorService.submit(new DistrictECourtRunnable(caseId, service, targetName, search_date,
+            //         searchedBy, requestId, serviceId, "2025", "Delhi", "Central", "Rouse Avenue Court Complex", null,
+            //         numList, "wb.xlsx", dir)));
 
             for (Future f : futures) {
                 f.get(24, TimeUnit.HOURS);

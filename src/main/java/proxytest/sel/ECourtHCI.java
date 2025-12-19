@@ -1,4 +1,4 @@
-package com.fios.fiosspringbootapi.service.scripts;
+package proxytest.sel;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -10,9 +10,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import com.fios.fiosspringbootapi.logic.RequestLogic;
-import com.fios.fiosspringbootapi.utlis.S3Upload;
-import com.fios.fiosspringbootapi.utlis.ZipDirectory;
+// import com.fios.fiosspringbootapi.logic.RequestLogic;
+// import com.fios.fiosspringbootapi.utlis.S3Upload;
+// import com.fios.fiosspringbootapi.utlis.ZipDirectory;
 
 public class ECourtHCI implements Runnable {
 
@@ -58,9 +58,9 @@ public class ECourtHCI implements Runnable {
 
         try {
             processECourtHI();
-            RequestLogic.portalStatus("High Court of India", requestId, serviceId, "COMPLETED");
+            // RequestLogic.portalStatus("High Court of India", requestId, serviceId, "COMPLETED");
         } catch (Exception e) {
-            RequestLogic.portalStatus("High Court of India", requestId, serviceId, "ERROR");
+            // RequestLogic.portalStatus("High Court of India", requestId, serviceId, "ERROR");
             // throw new RuntimeException(e);
         }
 
@@ -72,7 +72,7 @@ public class ECourtHCI implements Runnable {
         String path = currentDir + "/" + folderName;
         String startTime = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 
-        ExecutorService executorService = Executors.newFixedThreadPool(3);
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
         List<Future<?>> futures = new ArrayList<>();
 
         try {
@@ -116,22 +116,22 @@ public class ECourtHCI implements Runnable {
                 String fileName = caseId + "_" + targetName + "_" + "ECourtHCI";
                 s3_url = folderName + "/" + fileName + ".zip";
 
-                ZipDirectory.zipFolder(path, path + "/" + fileName + ".zip");
-                S3Upload.UploadDirectoryinS3withWord(caseId + "_" + service + "_" + "ECourt" + "_" + "HCI");
+                // ZipDirectory.zipFolder(path, path + "/" + fileName + ".zip");
+                // S3Upload.UploadDirectoryinS3withWord(caseId + "_" + service + "_" + "ECourt" + "_" + "HCI");
             }
-            RequestLogic.UpdateDatabaseStatus(status, "ECourt - High Court of India", "High Court of India", requestId,
-                    s3_url, serviceId, startTime);
+            // RequestLogic.UpdateDatabaseStatus(status, "ECourt - High Court of India", "High Court of India", requestId,
+            //         s3_url, serviceId, startTime);
 
         } catch (Exception e) {
             for (Future<?> future : futures) {
                 future.cancel(true);
             }
             e.printStackTrace();
-            RequestLogic.UpdateDatabaseStatus("ERROR", "ECourt - High Court of India", "High Court of India", requestId,
-                    null, serviceId, startTime);
+            // RequestLogic.UpdateDatabaseStatus("ERROR", "ECourt - High Court of India", "High Court of India", requestId,
+            //         null, serviceId, startTime);
         } finally {
             executorService.shutdown();
-            HelperClass.deleteDirectory(path);
+            // HelperClass.deleteDirectory(path);
         }
 
     }
