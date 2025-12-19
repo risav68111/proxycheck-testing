@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Playwright;
 import com.microsoft.playwright.options.Proxy;
@@ -25,17 +23,12 @@ public class HelperClass {
     private static final String proxy = dotenv.get("PROXY");
 
     public static Browser launchChromiumBrowser(ProxyVar p) {
-        // String userDataDir = "/tmp/playwright-chrome-user-data-" + UUID.randomUUID();
-        // ProxyVar p =null;
-        // try {
-        // p = ProxyChecker.getNextEligibleProxy();
-        // } catch (Exception e) {
-        // throw new RuntimeException(e);
-        // }
+        String userDataDir = "/tmp/playwright-chrome-user-data-" + UUID.randomUUID();
         System.out.println("PROXY: "+ proxy);
 
         BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
-                .setHeadless(false)
+                .setHeadless(true)
+                // .setArgs(List.of("--window-size=1920,1080"))
                 .setProxy(new Proxy(proxy)
                         .setUsername(user)
                         .setPassword(pass));
@@ -43,7 +36,6 @@ public class HelperClass {
         Playwright playwright = Playwright.create();
         Browser browser = playwright.chromium().launch(options);
 
-        // Browser browser = playwright.webkit().launch();
         return browser;
     }
 

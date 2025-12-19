@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -101,7 +100,7 @@ public class DistrictECourt implements Runnable {
         folderName = caseId + "_" + service + "_" + "DistrictECourt" + "_" + state + "_" + district + "_" + targetName
                 + "_" + search_date;
         // createMap(Integer.parseInt(year));
-        ExecutorService executorService = Executors.newFixedThreadPool(5); // ERROR change threadpool to 3
+        ExecutorService executorService = Executors.newFixedThreadPool(3); // ERROR change threadpool to 3
         ArrayList<Integer> check = new ArrayList<Integer>();
         List<Future<?>> futures = new ArrayList<>(); // Use a wildcard with an upper bound
         String startTime = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
@@ -112,10 +111,6 @@ public class DistrictECourt implements Runnable {
         long maxExecutionTime = 24;
         TimeUnit timeUnit = TimeUnit.HOURS;
 
-        // Wait for all tasks to complete or time out
-        // WebDriver driver = HelperClass.createWebDriver(path1);
-        // WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
-        // driver.manage().window().maximize();
         ProxyVar p = null;
         Browser browser = null;
 
@@ -131,14 +126,17 @@ public class DistrictECourt implements Runnable {
             // __________________________________________________________________",
             // page.locator("body").textContent());
 
-            Locator leftPaneMenuCSBtn = page.locator("#leftPaneMenuCS");
-            leftPaneMenuCSBtn.waitFor(new Locator.WaitForOptions()
+            Locator body = page.locator("body");
+            body.waitFor(new Locator.WaitForOptions()
                     .setState(WaitForSelectorState.VISIBLE));
+            if (body.textContent().contains("Welcome User Search Page not Found here")) {
+                throw new RuntimeException("PROXY Banned (~_~)");
+            }
             page.waitForLoadState(LoadState.LOAD);
             page.reload();
 
             // Open left pane
-            leftPaneMenuCSBtn = page.locator("#leftPaneMenuCS");
+            Locator leftPaneMenuCSBtn = page.locator("#leftPaneMenuCS");
             leftPaneMenuCSBtn.waitFor(new Locator.WaitForOptions()
                     .setState(WaitForSelectorState.VISIBLE));
             leftPaneMenuCSBtn.click();
@@ -215,7 +213,8 @@ public class DistrictECourt implements Runnable {
             for (Future<?> future : futures) {
                 future.get(maxExecutionTime, timeUnit);
             }
-            folderName = caseId + "_" + service + "_" + "DistrictECourt" + "_" + state + "_" + district + "_" + targetName
+            folderName = caseId + "_" + service + "_" + "DistrictECourt" + "_" + state + "_" + district + "_"
+                    + targetName
                     + "_" + search_date;
             // Arra = new ArrayList<Integer>();
             saveData(path1, startTime, check);
@@ -229,7 +228,8 @@ public class DistrictECourt implements Runnable {
                 future.cancel(true);
             }
 
-            // RequestLogic.UpdateDatabaseStatus("ERROR", "District E Court", "District E Court", requestId, null, serviceId, startTime);
+            // RequestLogic.UpdateDatabaseStatus("ERROR", "District E Court", "District E
+            // Court", requestId, null, serviceId, startTime);
             // RequestLogic.portalStatus("District E Court", requestId, serviceId, "ERROR");
         } finally {
             try {
@@ -265,7 +265,8 @@ public class DistrictECourt implements Runnable {
                 status1 = "FOUND";
                 s3_url = folderName + "/" + zipName + ".zip";
                 // ZipDirectory.zipFolder(path, path + "/" + zipName + ".zip");
-                // S3Upload.UploadDirectoryinS3withWord(caseId + "_" + service + "_" + "DistrictECourt" + "_" + state + "_" + district);
+                // S3Upload.UploadDirectoryinS3withWord(caseId + "_" + service + "_" +
+                // "DistrictECourt" + "_" + state + "_" + district);
                 System.out.println("printing s3 url -> " + s3_url);
             }
             System.out.println("status" + status1 + "request" + requestId + "S3url" + s3_url + "serviceID" + serviceId
