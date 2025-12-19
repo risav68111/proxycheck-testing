@@ -6,9 +6,7 @@ import java.util.List;
 public class App {
     public static void main(String[] args) {
         System.out.println("test running.!");
-        // Pw.run();
-        String search_date = LocalDate.now().toString();
-        System.out.println(search_date);
+        // Pw.runIt();
         Exec.runInThreads();
         // ProxyChecker.printProxies();
         // Tes.run();

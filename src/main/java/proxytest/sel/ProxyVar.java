@@ -6,23 +6,10 @@ import java.util.UUID;
 public class ProxyVar {
     private UUID id;
     private String proxy;
-    private String user;
-    private String pass;
-    @Override
-    public String toString() {
-        return "ProxyVar{id=" + id + ", proxy=" + proxy + ", user=" + user + ", pass=" + pass + ", count=" + count
-                + ", modifiedAt=" + modifiedAt + "}";
-    }
+    private String username;
+    private String password;
+    private Instant createdAt;
     private int count;
-
-    // public Proxy(Instant modifiedAt, UUID id, String proxy, String user, int count) {
-    //     this.modifiedAt = modifiedAt;
-    //     this.id = id;
-    //     this.proxy = proxy;
-    //     this.user = user;
-    //     this.count = count;
-    // }
-
     private Instant modifiedAt;
 
     public UUID getId() {
@@ -37,17 +24,23 @@ public class ProxyVar {
     public void setProxy(String proxy) {
         this.proxy = proxy;
     }
-    public String getUser() {
-        return user;
+    public String getUsername() {
+        return username;
     }
-    public void setUser(String user) {
-        this.user = user;
+    public void setUsername(String username) {
+        this.username = username;
     }
-    public String getPass() {
-        return pass;
+    public String getPassword() {
+        return password;
     }
-    public void setPass(String pass) {
-        this.pass = pass;
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
     public int getCount() {
         return count;
@@ -61,4 +54,5 @@ public class ProxyVar {
     public void setModifiedAt(Instant modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
+
 }

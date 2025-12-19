@@ -11,18 +11,17 @@ import java.util.concurrent.TimeUnit;
 public class Exec {
     public static void runInThreads() {
         try {
-            ExecutorService executorService = Executors.newFixedThreadPool(1);
+            ExecutorService executorService = Executors.newFixedThreadPool(4);
             List<Future<?>> futures = new ArrayList<>();
-            String targetName = "Neha Gada";
-            String searchedBy = "rishav";
+            String targetName = "Amit Sharma";
+            String searchedBy = "searchedBy";
             String caseId = "5404-003-26";
             String service = "service";
-            String search_date = LocalDate.now().toString();
-            System.out.println(search_date);
-            String fromYear = "2016";
+            String search_date = "search_date";
+            String fromYear = "2015";
             String toYear = "2025";
-            String state = "Maharashtra";
-            String district = "Maharashtra Family Courts";
+            String state = "Delhi";
+            String district = "Central";
             String courtComplex = "All";
             // courtComplex = "Rouse Avenue Court Complex";
             String requestId = "requestId";
@@ -34,16 +33,26 @@ public class Exec {
             // futures.add(executorService.submit(new Pw(i++)));
             // }
             // }
-            futures.add(executorService.submit(new DistrictECourt(caseId, service,
-            targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear,
-            state, district, courtComplex)));
+            // futures.add(executorService.submit(new DistrictECourt(caseId, service,
+            // targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear,
+            // state, "Central", courtComplex)));
+            // futures.add(executorService.submit(new DistrictECourt(caseId, service,
+            // targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear,
+            // state, "East", courtComplex)));
+            // futures.add(executorService.submit(new DistrictECourt(caseId, service,
+            // targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear,
+            // state, "New Delhi", courtComplex)));
+            // futures.add(executorService.submit(new DistrictECourt(caseId, service,
+            // targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear,
+            // state, "North", courtComplex)));
             // futures.add(executorService.submit(new DistrictECourt(caseId, service,
             // targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear,
             // state, "Maharashtra Industrial and Lab", courtComplex)));
             ArrayList<Integer> numList = new ArrayList<>();
-            // futures.add(executorService.submit(new DistrictECourtRunnable(caseId, service, targetName, search_date,
-            //         searchedBy, requestId, serviceId, "2025", "Delhi", "Central", "Rouse Avenue Court Complex", null,
-            //         numList, "wb.xlsx")));
+            String dir = "tmp";
+            futures.add(executorService.submit(new DistrictECourtRunnable(caseId, service, targetName, search_date,
+                    searchedBy, requestId, serviceId, "2025", "Delhi", "Central", "Rouse Avenue Court Complex", null,
+                    numList, "wb.xlsx", dir)));
 
             for (Future f : futures) {
                 f.get(24, TimeUnit.HOURS);

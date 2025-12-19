@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -28,7 +27,9 @@ import org.slf4j.LoggerFactory;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.SelectOption;
+import com.microsoft.playwright.options.WaitForSelectorState;
 
 public class DistrictECourt implements Runnable {
 
@@ -96,41 +97,53 @@ public class DistrictECourt implements Runnable {
         log.info("service: {}", service);
         log.info("caseId: {}", caseId);
 
+        folderName = caseId + "_" + service + "_" + "DistrictECourt" + "_" + state + "_" + district + "_" + targetName
+                + "_" + search_date;
         // createMap(Integer.parseInt(year));
-        ExecutorService executorService = Executors.newFixedThreadPool(6); // ERROR change threadpool to 3
+        ExecutorService executorService = Executors.newFixedThreadPool(3); // ERROR change threadpool to 3
         ArrayList<Integer> check = new ArrayList<Integer>();
         List<Future<?>> futures = new ArrayList<>(); // Use a wildcard with an upper bound
         String startTime = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 
-        folderName = caseId + "_" + service + "_" + "DistrictECourt" + "_" + "DistrictECourt" + "_" + targetName + "_"
-                + search_date;
         String path1 = currentDir + "/" + folderName;
         HelperClass.createDirectory(path1);
 
         long maxExecutionTime = 24;
         TimeUnit timeUnit = TimeUnit.HOURS;
 
-        // Wait for all tasks to complete or time out
-        // WebDriver driver = HelperClass.createWebDriver(path1);
-        // WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
-        // driver.manage().window().maximize();
         ProxyVar p = null;
         Browser browser = null;
 
         try {
             p = ProxyChecker.getNextEligibleProxy();
+            System.out.println(p.toString());
             browser = HelperClass.launchChromiumBrowser(p);
 
             Page page = browser.newPage();
-            page.navigate(
-                    "https://services.ecourts.gov.in");
+            page.navigate("https://services.ecourts.gov.in");
             // log.info(
             // "printing body: ------------------------------------------------\n{}\n
             // __________________________________________________________________",
             // page.locator("body").textContent());
 
-            page.locator("//a[@id='leftPaneMenuCS']").click();
-            log.info("leftPaneMenuCS ");
+            Locator body = page.locator("body");
+            body.waitFor(new Locator.WaitForOptions()
+                    .setState(WaitForSelectorState.VISIBLE));
+            if (body.textContent().contains("Welcome User Search Page not Found here")) {
+                throw new RuntimeException("PROXY Banned (~_~)");
+            }
+            page.waitForLoadState(LoadState.LOAD);
+            page.reload();
+
+            // Open left pane
+            Locator leftPaneMenuCSBtn = page.locator("#leftPaneMenuCS");
+            leftPaneMenuCSBtn.waitFor(new Locator.WaitForOptions()
+                    .setState(WaitForSelectorState.VISIBLE));
+            leftPaneMenuCSBtn.click();
+            log.info("leftPaneMenuCSBtn: {}");
+
+            // page.locator("//a[@id='leftPaneMenuCS']").click();
+            // log.info("leftPaneMenuCS ");
             Thread.sleep(2000);
             page.locator("(//button[@class=\"btn-close\"])[1]").click();
             log.info("close: ");
@@ -190,16 +203,18 @@ public class DistrictECourt implements Runnable {
                         Future<?> future = executorService
                                 .submit(new DistrictECourtRunnable(caseId, service, targetName, search_date,
                                         searchedBy, requestId, serviceId, String.valueOf(checkYear), state, district,
-                                        courtComp, estCode, check, workbookName));
+                                        courtComp, estCode, check, workbookName, folderName));
                         futures.add(future);
                     }
                 }
             }
+            browser.close();
 
             for (Future<?> future : futures) {
                 future.get(maxExecutionTime, timeUnit);
             }
-            folderName = caseId + "_" + service + "_" + "DistrictECourt" + "_" + "DistrictECourt" + "_" + targetName
+            folderName = caseId + "_" + service + "_" + "DistrictECourt" + "_" + state + "_" + district + "_"
+                    + targetName
                     + "_" + search_date;
             // Arra = new ArrayList<Integer>();
             saveData(path1, startTime, check);
@@ -213,7 +228,8 @@ public class DistrictECourt implements Runnable {
                 future.cancel(true);
             }
 
-            // RequestLogic.UpdateDatabaseStatus("ERROR", "District E Court", "District E Court", requestId, null, serviceId, startTime);
+            // RequestLogic.UpdateDatabaseStatus("ERROR", "District E Court", "District E
+            // Court", requestId, null, serviceId, startTime);
             // RequestLogic.portalStatus("District E Court", requestId, serviceId, "ERROR");
         } finally {
             try {
@@ -250,7 +266,7 @@ public class DistrictECourt implements Runnable {
                 s3_url = folderName + "/" + zipName + ".zip";
                 // ZipDirectory.zipFolder(path, path + "/" + zipName + ".zip");
                 // S3Upload.UploadDirectoryinS3withWord(caseId + "_" + service + "_" +
-                // "DistrictECourt");
+                // "DistrictECourt" + "_" + state + "_" + district);
                 System.out.println("printing s3 url -> " + s3_url);
             }
             System.out.println("status" + status1 + "request" + requestId + "S3url" + s3_url + "serviceID" + serviceId

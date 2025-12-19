@@ -45,8 +45,8 @@ public class ProxyChecker {
                 UUID id = rs.getObject("id", UUID.class);
                 p.setId(id);
                 p.setProxy(rs.getString("proxy"));
-                p.setUser(rs.getString("username"));
-                p.setPass(rs.getString("password"));
+                p.setUsername(rs.getString("username"));
+                p.setPassword(rs.getString("password"));
                 p.setCount(rs.getInt("count") + 1); // updated value
                 p.setModifiedAt(rs.getTimestamp("modified_at").toInstant());
 
@@ -102,8 +102,8 @@ public class ProxyChecker {
 
                 p.setId(id);
                 p.setProxy(rs.getString("proxy"));
-                p.setUser(rs.getString("username"));
-                p.setPass(rs.getString("password"));
+                p.setUsername(rs.getString("username"));
+                p.setPassword(rs.getString("password"));
                 p.setCount(rs.getInt("count") + 1); // updated value
                 p.setModifiedAt(rs.getTimestamp("modified_at").toInstant());
 
