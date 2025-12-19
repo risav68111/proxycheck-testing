@@ -32,16 +32,16 @@ public class Exec {
             // futures.add(executorService.submit(new Pw(i++)));
             // }
             // }
-            // futures.add(executorService.submit(new DistrictECourt(caseId, service,
-            // targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear,
-            // state, district, courtComplex)));
+            futures.add(executorService.submit(new DistrictECourt(caseId, service,
+            targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear,
+            state, district, courtComplex)));
             // futures.add(executorService.submit(new DistrictECourt(caseId, service,
             // targetName, search_date, searchedBy, requestId, serviceId, fromYear, toYear,
             // state, "Maharashtra Industrial and Lab", courtComplex)));
             ArrayList<Integer> numList = new ArrayList<>();
-            futures.add(executorService.submit(new DistrictECourtRunnable(caseId, service, targetName, search_date,
-                    searchedBy, requestId, serviceId, "2025", "Delhi", "Central", "Rouse Avenue Court Complex", null,
-                    numList, "wb.xlsx")));
+            // futures.add(executorService.submit(new DistrictECourtRunnable(caseId, service, targetName, search_date,
+            //         searchedBy, requestId, serviceId, "2025", "Delhi", "Central", "Rouse Avenue Court Complex", null,
+            //         numList, "wb.xlsx")));
 
             for (Future f : futures) {
                 f.get(24, TimeUnit.HOURS);

@@ -123,7 +123,7 @@ public class DistrictECourt implements Runnable {
 
             Page page = browser.newPage();
             page.navigate(
-                    "https://services.ecourts.gov.in/ecourtindia_v6/?p=home&app_token=34377bb73c3a60ac4a139c92149c2a9abcf55b142bd38392aeba5167dbbc62aa");
+                    "https://services.ecourts.gov.in");
             // log.info(
             // "printing body: ------------------------------------------------\n{}\n
             // __________________________________________________________________",
